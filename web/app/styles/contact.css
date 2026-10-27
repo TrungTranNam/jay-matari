@@ -1,0 +1,33 @@
+/* scoped to .pg-contact; source: contact.html */
+.pg-contact .c-grid{display:grid;grid-template-columns:1fr 400px;gap:44px;align-items:start;}
+.pg-contact .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:32px;}
+.pg-contact .panel h3{font-size:23px;margin-bottom:6px;}
+.pg-contact .panel .sub{font-size:13.5px;color:var(--ink-soft);margin-bottom:26px;}
+.pg-contact .two{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+.pg-contact .ci{display:flex;gap:15px;padding:20px 0;border-bottom:1px solid var(--line);}
+.pg-contact .ci:last-child{border:none;padding-bottom:0;}
+.pg-contact .ci-ic{width:44px;height:44px;border-radius:50%;background:var(--surface-2);border:1px solid var(--line);
+  display:grid;place-items:center;color:var(--gold);font-size:21px;flex:none;}
+.pg-contact .ci b{display:block;font-size:14px;font-weight:600;margin-bottom:4px;}
+.pg-contact .ci p,.pg-contact .ci a{font-size:13.5px;color:var(--ink-soft);line-height:1.65;}
+.pg-contact .ci a:hover{color:var(--gold);}
+.pg-contact .map{aspect-ratio:16/7;overflow:hidden;border-radius:var(--radius);border:1px solid var(--line);
+  background:var(--surface-2);position:relative;}
+.pg-contact .map img{width:100%;height:100%;object-fit:cover;filter:saturate(.7);}
+.pg-contact .map-pin{position:absolute;inset:0;display:grid;place-items:center;
+  background:linear-gradient(to top,rgba(20,10,22,.72),rgba(20,10,22,.15));color:#fff;text-align:center;}
+.pg-contact .map-pin i{font-size:34px;color:#E4C879;}
+.pg-contact .map-pin b{font-family:var(--f-display);font-size:22px;display:block;margin-top:10px;}
+.pg-contact .map-pin small{font-family:var(--f-mono);font-size:10px;letter-spacing:.18em;color:rgba(255,255,255,.8);}
+.pg-contact .faq{border-bottom:1px solid var(--line);}
+.pg-contact .faq .q{width:100%;background:none;border:0;color:inherit;font-family:inherit;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:16px;
+  padding:19px 0;cursor:pointer;font-size:15px;font-weight:600;quotes:none;}
+.pg-contact .faq .q i{color:var(--gold);font-size:22px;transition:transform .3s;flex:none;}
+.pg-contact .faq.on .q i{transform:rotate(45deg);}
+.pg-contact .faq .ans{display:block;max-height:0;overflow:hidden;transition:max-height .38s ease;
+  font-size:14px;color:var(--ink-soft);line-height:1.85;}
+.pg-contact .faq.on .ans{max-height:220px;padding-bottom:19px;}
+@media(max-width:900px){.pg-contact .c-grid{grid-template-columns:1fr;}
+.pg-contact .two{grid-template-columns:1fr;}
+}
+

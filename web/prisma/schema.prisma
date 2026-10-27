@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PLACED
+  CONFIRMED
+  PACKED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PayStatus {
+  PENDING
+  AWAITING_CHECK // UPI paid, UTR waiting for admin to match
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  name      String
+  phone     String?
+  password  String
+  role      Role       @default(CUSTOMER)
+  note      String?    @db.Text // CRM: admin-only notes
+  tags      Json? // CRM: ["VIP","bridal"]
+  createdAt DateTime   @default(now())
+  addresses Address[]
+  orders    Order[]
+  cart      CartItem[]
+  wishlist  Wish[]
+  reviews   Review[]
+}
+
+model Address {
+  id       Int     @id @default(autoincrement())
+  userId   Int
+  label    String  @default("Home")
+  name     String
+  phone    String
+  line     String
+  city     String
+  state    String
+  pin      String
+  landmark String?
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Product {
+  sku         String     @id
+  name        String
+  cat         String
+  price       Int // whole rupees
+  mrp         Int
+  stock       Int
+  badge       String?
+  badgeTone   String?
+  rating      Float      @default(0)
+  reviewCount Int        @default(0)
+  fabric      String?
+  work        String?
+  care        String?
+  sizes       Json
+  colors      Json
+  desc        String     @db.Text
+  img         String
+  gallery     Json
+  active      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  cartItems   CartItem[]
+  wishes      Wish[]
+  reviews     Review[]
+
+  @@index([cat])
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  sku       String
+  size      String
+  color     String
+  qty       Int
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [sku], references: [sku], onDelete: Cascade)
+
+  @@unique([userId, sku, size, color])
+}
+
+model Wish {
+  userId  Int
+  sku     String
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [sku], references: [sku], onDelete: Cascade)
+
+  @@id([userId, sku])
+}
+
+model Order {
+  id             String       @id
+  userId         Int
+  items          Json // snapshot: [{sku,name,price,img,size,qty}]
+  address        Json // snapshot
+  subtotal       Int
+  shipping       Int
+  total          Int
+  payment        String // cod | upi (manual QR + UTR) | razorpay
+  paymentRef     String? // UTR, or Razorpay payment id
+  gatewayOrderId String?      @unique // Razorpay order id
+  paymentStatus  PayStatus    @default(PENDING)
+  status         OrderStatus  @default(PLACED)
+  createdAt      DateTime     @default(now())
+  user           User         @relation(fields: [userId], references: [id])
+  events         OrderEvent[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderEvent {
+  id      Int         @id @default(autoincrement())
+  orderId String
+  status  OrderStatus
+  by      Int? // admin user id, null = system/customer
+  at      DateTime    @default(now())
+  order   Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  sku       String
+  userId    Int
+  rating    Int
+  text      String   @db.Text
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [sku], references: [sku], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  body      String   @db.Text
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// Editable site copy: hero_slides, strip, footer, ...
+model SiteContent {
+  key   String @id
+  value Json
+}
